@@ -3,6 +3,9 @@ import tasksRouter from './routes/tasksRouter.js'
 
 const app = express()
 
+app.use(express.json())
+app.use(express.urlencoded({"extended": true}))
+
 // 1.1 Status routes
 app.get("/", (req, res) => {
     res.json({"name": "Task API", "version": "1.0", "endpoints": "/tasks"})

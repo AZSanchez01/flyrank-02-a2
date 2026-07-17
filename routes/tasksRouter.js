@@ -1,4 +1,6 @@
+import { randomUUID } from 'crypto'
 import { Router } from 'express'
+import { writeFile } from 'fs'
 import { readFile } from 'fs/promises'
 import path from 'path'
 
@@ -12,6 +14,27 @@ tasksRouter.route('/').get(async (req, res) => {
     catch {
         throw new Error(`Error: Cannot get data...`)
     }
+}).post(async (req, res) => {
+    // get task title
+    const title = req.body.title
+    if (!title) {
+        res.status(400).json({"error": "Cannot post new task. Title is missing"})
+    }
+
+    // Create new task
+    const newTask = {"id": randomUUID(), "title": title, "done": false}
+    const data = await getData()
+    data.push(newTask)
+
+    // Write to data
+    const filePath = path.join(process.cwd(), 'model', 'data.json')
+    await writeFile(filePath, JSON.stringify(data, null, 2), 'utf8', (error) => {
+        if (error){
+            console.error('Failed to save file', error)
+            res.status(500).json({"error": "Unable to save file"})
+        }
+        res.status(200).json({"status": "Successfully saved file"})
+    })
 })
 
 tasksRouter.route('/:id').get(async (req, res) => {
@@ -21,7 +44,7 @@ tasksRouter.route('/:id').get(async (req, res) => {
     if (!task) {
         res.status(404).json(`error: task "${id}" cannot be found`)
     }
-
+    
     res.json(task)
 })
 
