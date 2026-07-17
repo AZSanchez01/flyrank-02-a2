@@ -1,15 +1,5 @@
 [
   {
-    "id": "abcdefg",
-    "title": "Start of alphabet",
-    "done": true
-  },
-  {
-    "id": "hijklmnop",
-    "title": "Next section of alphabet",
-    "done": false
-  },
-  {
     "id": "qrstuv",
     "title": "3rd section of alphabet",
     "done": true
@@ -22,6 +12,11 @@
   {
     "id": "a0230bd5-148b-4d3a-ae46-3914f74740b8",
     "title": "",
+    "done": false
+  },
+  {
+    "id": "97d0a696-2957-4a9b-a50a-e4f423e97d87",
+    "title": "Im the final task",
     "done": false
   }
 ]
