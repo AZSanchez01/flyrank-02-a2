@@ -1,0 +1,122 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Task CRUD API",
+        "description": "Task API with basic CRUD functionality and Swagger documentation",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {
+            "get":{
+                "description": "Returns the meta information of api",
+                "responses": {
+                    "200": {
+                        "description": "Meta information successfully returned"
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Returns health of express API server",
+                "responses": {
+                    "200": {
+                        "description": "Server is healthy"
+                    }
+                }
+            }
+        },
+        "/tasks": {
+            "get": {
+                "description": "Returns a list of tasks from data.json",
+                "responses": {
+                    "200": {
+                        "description": "Successfully get task list"
+                    },
+                    "400": {
+                        "description": "Failure to get task list"
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new task with a title parameter",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["title"],
+                                "properties": {
+                                    "title": {"type": "string", "example": "Task #1"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successfully added new task"
+                    },
+                    "400": {
+                        "desription": "Failure to add new task due to missing title, id, or status"
+                    }
+                }
+            }
+        },
+        "/tasks/{id}": {
+            "get": {
+                "description": "Get a specific task",
+                "parameters": [
+                    {"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}
+                ],
+                "responses": {
+                    "200": {"description": "Successfully get task"},
+                    "404": {"description": "Task cannot be found"}
+                }
+            },
+            "put": {
+                "description": "Updates the title or done status of a task",
+                "parameters": [
+                    {"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["title", "done"],
+                                "properties": {
+                                    "title": {"type": "string"},
+                                    "done": {"type": "boolean"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated a task"
+                    },
+                    "400": {
+                        "description": "Failure to update task. Missing body parameter"
+                    },
+                    "404": {
+                        "description": "Failure to update task. Id cannot be found"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a task",
+                "parameters": [
+                    {"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}
+                ],
+                "responses": {
+                    "204": {"description": "Successfully deleted task"},
+                    "400": {"description": "Failure to delete task. Task id cannot be found"}
+                }
+            }
+        }
+    }
+}

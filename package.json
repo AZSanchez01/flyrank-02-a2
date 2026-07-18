@@ -1,8 +1,13 @@
 {
   "type": "module",
+  "scripts": {
+    "dev": "nodemon app.js"
+  },
   "dependencies": {
     "ejs": "^6.0.1",
     "express": "^5.2.1",
+    "nodemon": "^3.1.14",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^14.0.1"
   }
 }

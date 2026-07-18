@@ -1,14 +1,19 @@
 import express from 'express'
 import tasksRouter from './routes/tasksRouter.js'
+import swaggerUi from 'swagger-ui-express'
+import swaggerDocument from './openapi.json' with {type: "json"}
 
 const app = express()
+
+// Swagger documentation
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.use(express.json())
 app.use(express.urlencoded({"extended": true}))
 
 // 1.1 Status routes
 app.get("/", (req, res) => {
-    res.json({"name": "Task API", "version": "1.0", "endpoints": "/tasks"})
+    res.json({"name": "Task API", "version": "1.0", "endpoints": ["/tasks", '/health', '/docs']})
 })
 app.get("/health", (req, res) => {
     res.json({"status": "ok"})

@@ -29,7 +29,7 @@ tasksRouter.route('/').get(async (req, res) => {
     // Write to data
     const filePath = path.join(process.cwd(), 'model', 'data.json')
     await writeFile(filePath, JSON.stringify(data, null, 2), 'utf8')
-    res.status(201).json({"status": "Successfully saved file"})
+    res.status(201).json({"status": "Successfully added new task"})
 })
 
 tasksRouter.route('/:id').put(async (req, res) => {

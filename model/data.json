@@ -1,13 +1,8 @@
 [
   {
-    "id": "qrstuv",
-    "title": "3rd section of alphabet",
-    "done": true
-  },
-  {
     "id": "ccedd796-bce6-4032-abc4-980ae5103e6f",
-    "title": "imanewtask",
-    "done": false
+    "title": "im now a done task",
+    "done": true
   },
   {
     "id": "a0230bd5-148b-4d3a-ae46-3914f74740b8",
