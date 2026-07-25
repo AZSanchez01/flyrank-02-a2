@@ -3,12 +3,14 @@ import { Router } from 'express'
 import { writeFile } from 'fs/promises'
 import { readFile } from 'fs/promises'
 import path from 'path'
+import db from './../model/db.js'
 
 const tasksRouter = Router()
 
 tasksRouter.route('/').get(async (req, res) => {
     try {
-        const data = await getData()
+        const getTasks = db.prepare('SELECT * FROM tasks')
+        const data = getTasks.all()
         res.json(data)
     }
     catch {
@@ -22,14 +24,10 @@ tasksRouter.route('/').get(async (req, res) => {
     }
 
     // Create new task
-    const newTask = {"id": randomUUID(), "title": title, "done": false}
-    const data = await getData()
-    data.push(newTask)
-
-    // Write to data
-    const filePath = path.join(process.cwd(), 'model', 'data.json')
-    await writeFile(filePath, JSON.stringify(data, null, 2), 'utf8')
-    res.status(201).json({"status": "Successfully added new task"})
+    const id = randomUUID()
+    const insertTask = db.prepare(`INSERT INTO tasks VALUES (?, ?, ?)`)
+    insertTask.run(id, title, 0)
+    res.status(201).json({"status": "Successfully added new task", "task": {"id": id, "title": title, "done": false}})
 })
 
 tasksRouter.route('/:id').put(async (req, res) => {
@@ -74,13 +72,11 @@ tasksRouter.route('/:id').put(async (req, res) => {
 })
 
 tasksRouter.route('/:id').get(async (req, res) => {
-    const data = await getData()
-    const id = req.params.id
-    const task = data.find((task) => task.id == id)
-    if (!task) {
-        res.status(404).json(`error: task "${id}" cannot be found`)
+    const getTask = db.prepare(`SELECT * from tasks where id = ?`)
+    const task = getTask.get(req.params.id)
+    if (!task || task == undefined) {
+        res.status(404).json({error: 'task "${req.params.id}" cannot be found'})
     }
-    
     res.json(task)
 })
 
