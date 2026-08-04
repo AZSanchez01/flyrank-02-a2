@@ -14,7 +14,10 @@ npm run dev
 ## Techstack
 * **Runtime/Language:** Node.js / Javascript
 * **Framework:** Express
-* **Data**: Uses dummy data using a json file
+* **Data:** Better-SQLite3
+
+### Summary:
+The web application uses Express for backend routing. Better-SQLite3 was used to simulate a lightweight database for single-file, zero-setup database functions while ensuring data won't get wiped out every time the server closes.  
 
 ## API Endpoints
 Note this is run locally and all API requests are prefixed with `http://localhost:3000`
@@ -29,4 +32,8 @@ Note this is run locally and all API requests are prefixed with `http://localhos
 | /tasks/{id} | `PUT` | `id` | `title`, `done` | Edit a specific task |
 | /tasks/{id} | `GET` | `id` | - | Get a specific task |
 
+## Sample Query
+| Query | Output |
+| --- | --- |
+SELECT * FROM tasks; | [{"id":"efgh","title":"newtitle","done":0}, <br> {"id":"jdisvogrhvbtrubeu","title":"im the newest task","done":0},<br> {"id":"9af2e32d-9fa7-4ce3-b4d9-7b2f2b546728","title":"im thenewest nrewest ","done":0}] |
 
