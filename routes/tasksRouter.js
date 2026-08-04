@@ -1,82 +1,62 @@
-import { randomUUID } from 'crypto'
+import { randomBytes } from 'crypto'
 import { Router } from 'express'
-import { writeFile } from 'fs/promises'
-import { readFile } from 'fs/promises'
-import path from 'path'
 import db from './../model/db.js'
 
 const tasksRouter = Router()
 
+function randomAlphanumericId() {
+    return randomBytes(12).toString('base64url')
+}
+
+function serializeTask(task) {
+    if (!task) return task
+    return { ...task, done: task.done === 1 }
+}
+
 tasksRouter.route('/').get(async (req, res) => {
     try {
-        const getTasks = db.prepare('SELECT * FROM tasks')
-        const data = getTasks.all()
+        const data = db.prepare('SELECT * FROM tasks').all().map(serializeTask)
         res.json(data)
     }
     catch {
-        throw new Error(`Error: Cannot get data...`)
+        res.status(400).json({ error: 'Cannot get task list' })
     }
 }).post(async (req, res) => {
-    // get task title
-    const title = req.body.title
+    const title = req.body?.title
     if (!title) {
-        res.status(400).json({"error": "Cannot post new task. Title is missing"})
+        return res.status(400).json({ error: 'Cannot post new task. Title is missing' })
     }
 
-    // Create new task
-    const id = randomUUID()
-    const insertTask = db.prepare(`INSERT INTO tasks VALUES (?, ?, ?)`)
-    insertTask.run(id, title, 0)
-    res.status(201).json({"status": "Successfully added new task", "task": {"id": id, "title": title, "done": false}})
-})
-
-tasksRouter.route('/:id').put(async (req, res) => {
-    const { id } = req.params
-    const { title, done } = req.body
-    if (!id || !title || done == null) {
-        res.status(400).json({"error": "Request body must contain id, title, and done attributes"})
-    }
-    try {
-        const updateTask = db.prepare(`UPDATE tasks SET title = ?, done = ? WHERE id = ?`)
-        updateTask.run(title, done, id)
-        res.status(200).json({"status": "Successfully updated file"})
-    }
-    catch {
-        throw new Error('Error: Cannot update task')
-    }
-}).delete(async (req, res) => {
-    const { id } = req.params
-    if (!id) {
-        res.status(400).json({"error": "ID missing from delete request parameters"})
-    }
-    try {
-        const deleteTask = db.prepare(`DELETE FROM tasks WHERE id = ?`)
-        deleteTask.run(id)
-        res.sendStatus(204)
-    }
-    catch {
-        throw new Error('Error: Cannot delete task')
-    }
+    const id = randomAlphanumericId()
+    db.prepare('INSERT INTO tasks (id, title, done) VALUES (?, ?, ?)').run(id, title, 0)
+    res.status(201).json({ status: 'Successfully added new task', task: { id, title, done: false } })
 })
 
 tasksRouter.route('/:id').get(async (req, res) => {
-    const getTask = db.prepare(`SELECT * from tasks where id = ?`)
-    const task = getTask.get(req.params.id)
-    if (!task || task == undefined) {
-        res.status(404).json({error: 'task "${req.params.id}" cannot be found'})
+    const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id)
+    if (!task) {
+        return res.status(404).json({ error: `Task "${req.params.id}" cannot be found` })
     }
-    res.json(task)
-})
+    res.json(serializeTask(task))
+}).put(async (req, res) => {
+    const { id } = req.params
+    const { title, done } = req.body
+    if (!title || done == null) {
+        return res.status(400).json({ error: 'Request body must contain title and done attributes' })
+    }
 
-async function getData() {
-    try {
-        const filePath = path.join(process.cwd(), 'model', 'data.json')
-        const fileData = await readFile(filePath, 'utf8')
-        return JSON.parse(fileData)
+    const result = db.prepare('UPDATE tasks SET title = ?, done = ? WHERE id = ?').run(title, done ? 1 : 0, id)
+    if (result.changes === 0) {
+        return res.status(404).json({ error: `Task "${id}" cannot be found` })
     }
-    catch {
-        throw Error('Error: Cannot find or parse data...')
+    res.json({ status: 'Successfully updated task', task: { id, title, done: !!done } })
+}).delete(async (req, res) => {
+    const { id } = req.params
+    const result = db.prepare('DELETE FROM tasks WHERE id = ?').run(id)
+    if (result.changes === 0) {
+        return res.status(404).json({ error: `Task "${id}" cannot be found` })
     }
-}
+    res.sendStatus(204)
+})
 
 export default tasksRouter

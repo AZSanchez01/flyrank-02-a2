@@ -59,7 +59,7 @@
                         "description": "Successfully added new task"
                     },
                     "400": {
-                        "desription": "Failure to add new task due to missing title, id, or status"
+                        "description": "Failure to add new task due to missing title, id, or status"
                     }
                 }
             }
