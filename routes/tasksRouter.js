@@ -37,14 +37,8 @@ tasksRouter.route('/:id').put(async (req, res) => {
         res.status(400).json({"error": "Request body must contain id, title, and done attributes"})
     }
     try {
-        const data = await getData()
-        const oldTaskExists = data.some((task) => task.id == id)
-        if (!oldTaskExists) {
-            res.status(404).json({"error": "ID of task to update cannot be found"})
-        }
-        const updatedData = data.map((task) => (task.id == id)? {id, title, done} : task)
-        const filePath = path.join(process.cwd(), 'model', 'data.json')
-        await writeFile(filePath, JSON.stringify(updatedData, null, 2), 'utf8')
+        const updateTask = db.prepare(`UPDATE tasks SET title = ?, done = ? WHERE id = ?`)
+        updateTask.run(title, done, id)
         res.status(200).json({"status": "Successfully updated file"})
     }
     catch {
@@ -56,14 +50,8 @@ tasksRouter.route('/:id').put(async (req, res) => {
         res.status(400).json({"error": "ID missing from delete request parameters"})
     }
     try {
-        const data = await getData()
-        const taskExists = data.some((task) => task.id == id)
-        if (!taskExists) {
-            res.status(404).json({"error": "Id of task does not exist"})
-        }
-        const updatedData = data.filter((task) => task.id != id)
-        const filePath = path.join(process.cwd(), 'model', 'data.json')
-        await writeFile(filePath, JSON.stringify(updatedData, null, 2), 'utf8')
+        const deleteTask = db.prepare(`DELETE FROM tasks WHERE id = ?`)
+        deleteTask.run(id)
         res.sendStatus(204)
     }
     catch {
